@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "N2M+AgR0JTm9FOYSiZdikgC558scpshmJ+kKPF4EHrHpxAv3X8n8iRwgmceh7PXzXYQTfVci2TTSjTBJ/ZFMDQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\linal\\source\\repos\\ShadowLord\\ShadowLord\\ShadowLord.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\linal\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\linal\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
