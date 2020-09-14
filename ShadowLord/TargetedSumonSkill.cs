@@ -3,29 +3,33 @@ using RoR2;
 using UnityEngine;
 using System;
 using System.Linq;
-
+using UnityEngine;
+using UnityEngine.Networking;
 namespace ShadowLord.MyEntityStates
 {
-    public class SummonSkill : BaseSkillState
+    public class TargetedSumonSkill : BaseSkillState
     {
         public float baseDuration = 0.5f;
         private float duration;
-        public GameObject effectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/Hitspark");
-        public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/critspark");
-        public GameObject tracerEffectPrefab = Resources.Load<GameObject>("prefabs/effects/tracers/tracerbanditshotgun");
-        private GameObject targetPrefab = Resources.Load<GameObject>("prefabs/characterbodies/LemurianBody");
         private GameObject ownerPrefab;
-        private TargetTracker targetTracker;
+        private HuntressTracker huntressTracker;
         private MasterSummon masterSummon;
+
+        private HurtBox initialOrbTarget;
 
         public override void OnEnter()
         {
             base.OnEnter();
+            if (this.huntressTracker && base.isAuthority)
+            {
+                this.initialOrbTarget = this.huntressTracker.GetTrackingTarget();
+            }
+
             if (base.isAuthority)
             {
-                this.targetTracker = base.GetComponent<TargetTracker>();
+                this.huntressTracker = base.GetComponent<HuntressTracker>();
                 this.ownerPrefab = base.gameObject;
-                CharacterBody targetBody = this.targetPrefab.GetComponent<CharacterBody>();
+                CharacterBody targetBody = this.huntressTracker.GetTrackingTarget().healthComponent.body;
                 CharacterBody ownerBody = this.ownerPrefab.GetComponent<CharacterBody>();
                 GameObject bodyPrefab = BodyCatalog.FindBodyPrefab(targetBody);
                 CharacterMaster characterMaster = MasterCatalog.allAiMasters.FirstOrDefault((CharacterMaster master) => master.bodyPrefab == bodyPrefab);
@@ -38,20 +42,8 @@ namespace ShadowLord.MyEntityStates
 
                 CharacterMaster characterMaster2 = masterSummon.Perform();
 
-                GameObject trackingTargetAsGO = this.targetTracker.GetTrackingTargetAsGO();
-                RoR2.Console.Log log = new RoR2.Console.Log();
-                if (trackingTargetAsGO != null)
-                {
-                    log.message = "REEE";
-                    RoR2.Console.logs.Add(log);
-                } else
-                {
-                    log.message = "YEET";
-                    RoR2.Console.logs.Add(log);
-                }
-            
             }
-           
+
 
         }
         public override void OnExit()
@@ -72,7 +64,14 @@ namespace ShadowLord.MyEntityStates
         {
             return InterruptPriority.Skill;
         }
-
+        public override void OnSerialize(NetworkWriter writer)
+        {
+            writer.Write(HurtBoxReference.FromHurtBox(this.initialOrbTarget));
+        }
+        public override void OnDeserialize(NetworkReader reader)
+        {
+            this.initialOrbTarget = reader.ReadHurtBoxReference().ResolveHurtBox();
+        }
 
     }
 }

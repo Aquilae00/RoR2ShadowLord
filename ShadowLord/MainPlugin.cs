@@ -7,6 +7,12 @@ using R2API.Utils;
 using RoR2;
 using RoR2.Skills;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Networking;
+using UnityEngine.Serialization;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+
 
 namespace ShadowLord
 {
@@ -21,10 +27,73 @@ namespace ShadowLord
         private GameObject characterPrefab;
         public void Awake()
         {
+            //IL.RoR2.CharacterMaster.OnBodyDeath += (il) =>
+            //{
+            //    ILCursor c = new ILCursor(il);
+            //    c.GotoNext(
+            //        x => x.MatchLdarg(0),
+            //        x => x.MatchLdfld<CharacterMaster>("destroyOnBodyDeath"),
+            //        x => x.MatchBrfalse(out _),
+            //        x => x.MatchLdarg(0),
+            //        x => x.MatchCallOrCallvirt<Component>("get_gameObject"),
+            //        x => x.MatchLdcR4(1),
+            //        x => x.MatchCallOrCallvirt<UnityEngine.Object>("Destroy"));
+            //    c.Index += 1;
+            //    c.RemoveRange(7);
+            //};
+            //On.RoR2.HurtBoxGroup.OnDeathStart += (orig, self) =>
+            //{
+            //    Chat.AddMessage("yahoo");
+            //};
+            //On.RoR2.CharacterAI.BaseAI.OnBodyDeath += (orig, self, test) =>
+            //{
+            //    Chat.AddMessage("dead ai");
+            //};
+            //On.RoR2.CharacterAI.BaseAI.OnBodyLost += (orig, self, test) =>
+            //{
+            //    Chat.AddMessage("dead ai");
+            //};
+            //////On.RoR2.HurtBoxGroup.SetHurtboxesActive += (orig, self, test) =>
+            //////{
+            //////    Chat.AddMessage("yay");
+            //////};
+            ////On.RoR2.BullseyeSearch.CheckVisible += (orig, self, test) =>
+            ////{
+            ////    return false;
+            ////};
+
+            //On.RoR2.HurtBox.OnDisable += (orig, self) =>
+            //{
+            //    Chat.AddMessage("OnDisable");
+            //};
+
+            //IL.RoR2.CameraRigController.Update += (il) => {
+            //    var c = new ILCursor(il);
+
+            //    //We use GotoNext to locate the code we want to edit
+            //    //Notice we can specify a block of instructions to match, rather than only a single instruction
+            //    //This is preferable as it is less likely to break something else because of an update
+
+            //    c.GotoNext(
+            //        x => x.MatchLdloc(4),      // num14 *= 0.5f;
+            //        x => x.MatchLdcR4(0.5f),   // 
+            //        x => x.MatchMul(),         // 
+            //        x => x.MatchStloc(4),      // 
+            //        x => x.MatchLdloc(5),      // num15 *= 0.5f;
+            //        x => x.MatchLdcR4(0.5f),   //
+            //        x => x.MatchMul(),         //
+            //        x => x.MatchStloc(5));     //
+
+            //    //When we GotoNext, the cursor is before the first instruction we match.
+            //    //So we remove the next 8 instructions
+            //    c.RemoveRange(8);
+
+            //};
+
             // myCharacter should either be
             // Resources.Load<GameObject>("prefabs/characterbodies/BanditBody");
             // or BodyCatalog.FindBodyIndex("BanditBody");
-            this.characterPrefab = Resources.Load<GameObject>("prefabs/characterbodies/CommandoBody");
+            this.characterPrefab = Resources.Load<GameObject>("prefabs/characterbodies/HuntressBody");
 
             // If you're confused about the language tokens, they're the proper way to add any strings used by the game.
             // We use AssetPlus API for that
@@ -72,7 +141,7 @@ namespace ShadowLord
         private void PrimarySkillSetup()
         {
             var mySkillDef = ScriptableObject.CreateInstance<SkillDef>();
-            mySkillDef.activationState = new SerializableEntityStateType(typeof(ShadowLord.MyEntityStates.SummonSkill));
+            mySkillDef.activationState = new SerializableEntityStateType(typeof(ShadowLord.MyEntityStates.TargetedSumonSkill));
             mySkillDef.activationStateMachineName = "Weapon";
             mySkillDef.baseMaxStock = 1;
             mySkillDef.baseRechargeInterval = 0f;
