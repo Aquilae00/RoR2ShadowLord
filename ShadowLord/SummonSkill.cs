@@ -23,7 +23,7 @@ namespace ShadowLord.MyEntityStates
             base.OnEnter();
             if (base.isAuthority)
             {
-                this.targetTracker = base.GetComponent<TargetTracker>();
+                //this.targetTracker = base.GetComponent<TargetTracker>();
                 this.ownerPrefab = base.gameObject;
                 CharacterBody targetBody = this.targetPrefab.GetComponent<CharacterBody>();
                 CharacterBody ownerBody = this.ownerPrefab.GetComponent<CharacterBody>();

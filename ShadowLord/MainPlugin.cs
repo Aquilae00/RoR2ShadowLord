@@ -136,6 +136,7 @@ namespace ShadowLord
         private void SkillSetup()
         {
             this.PrimarySkillSetup();
+            this.SecondarySkillSetup();
         }
 
         private void PrimarySkillSetup()
@@ -169,6 +170,50 @@ namespace ShadowLord
 
             //Note; you can change component.primary to component.secondary , component.utility and component.special
             var skillFamily = skillLocator.primary.skillFamily;
+
+            //If this is an alternate skill, use this code.
+            // Here, we add our skill as a variant to the exisiting Skill Family.
+            Array.Resize(ref skillFamily.variants, skillFamily.variants.Length + 1);
+            skillFamily.variants[skillFamily.variants.Length - 1] = new SkillFamily.Variant
+            {
+                skillDef = mySkillDef,
+                unlockableName = "",
+                viewableNode = new ViewablesCatalog.Node(mySkillDef.skillNameToken, false, null)
+
+            };
+        }
+
+        private void SecondarySkillSetup()
+        {
+            var mySkillDef = ScriptableObject.CreateInstance<SkillDef>();
+            mySkillDef.activationState = new SerializableEntityStateType(typeof(ShadowLord.MyEntityStates.SummonSkill));
+            mySkillDef.activationStateMachineName = "Weapon";
+            mySkillDef.baseMaxStock = 1;
+            mySkillDef.baseRechargeInterval = 0f;
+            mySkillDef.beginSkillCooldownOnSkillEnd = true;
+            mySkillDef.canceledFromSprinting = true;
+            mySkillDef.fullRestockOnAssign = true;
+            mySkillDef.interruptPriority = InterruptPriority.Any;
+            mySkillDef.isBullets = false;
+            mySkillDef.isCombatSkill = false;
+            mySkillDef.mustKeyPress = false;
+            mySkillDef.noSprint = true;
+            mySkillDef.rechargeStock = 1;
+            mySkillDef.requiredStock = 1;
+            mySkillDef.shootDelay = 0.5f;
+            mySkillDef.stockToConsume = 1;
+            mySkillDef.icon = Resources.Load<Sprite>("NotAnActualPath");
+            mySkillDef.skillDescriptionToken = "CHARACTERNAME_SKILLSLOT_SKILLNAME_DESCRIPTION";
+            mySkillDef.skillName = "CHARACTERNAME_SKILLSLOT_SKILLNAME_NAME";
+            mySkillDef.skillNameToken = "CHARACTERNAME_SKILLSLOT_SKILLNAME_NAME";
+
+            LoadoutAPI.AddSkillDef(mySkillDef);
+            //This adds our skilldef. If you don't do this, the skill will not work.
+
+            var skillLocator = this.characterPrefab.GetComponent<SkillLocator>();
+
+            //Note; you can change component.primary to component.secondary , component.utility and component.special
+            var skillFamily = skillLocator.secondary.skillFamily;
 
             //If this is an alternate skill, use this code.
             // Here, we add our skill as a variant to the exisiting Skill Family.

@@ -5,6 +5,9 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+
 namespace ShadowLord.MyEntityStates
 {
     public class TargetedSumonSkill : BaseSkillState
@@ -32,15 +35,29 @@ namespace ShadowLord.MyEntityStates
                 CharacterBody targetBody = this.huntressTracker.GetTrackingTarget().healthComponent.body;
                 CharacterBody ownerBody = this.ownerPrefab.GetComponent<CharacterBody>();
                 GameObject bodyPrefab = BodyCatalog.FindBodyPrefab(targetBody);
-                CharacterMaster characterMaster = MasterCatalog.allAiMasters.FirstOrDefault((CharacterMaster master) => master.bodyPrefab == bodyPrefab);
-                this.masterSummon = new MasterSummon();
-                masterSummon.masterPrefab = characterMaster.gameObject;
-                masterSummon.position = ownerBody.footPosition;
-                CharacterDirection component = ownerBody.GetComponent<CharacterDirection>();
-                masterSummon.rotation = (component ? Quaternion.Euler(0f, component.yaw, 0f) : ownerBody.transform.rotation);
-                masterSummon.summonerBodyObject = (ownerBody ? ownerBody.gameObject : null);
+                CharacterModel summonModel = bodyPrefab.GetComponent<ModelLocator>().modelTransform.GetComponent<CharacterModel>();
+                summonModel.isGhost = true;
 
-                CharacterMaster characterMaster2 = masterSummon.Perform();
+                IL.RoR2.Util.TryToCreateGhost += (il) =>
+                {
+                    ILCursor c = new ILCursor(il);
+                    c.GotoNext(
+                        x => x.MatchLdloc(0),
+                        x => x.MatchLdfld("RoR2.Util","targetBody"),
+                        x => x.MatchCallOrCallvirt<CharacterBody>("get_footPosition"),
+                        x => x.MatchStfld<MasterSummon>("position")
+                        );
+                };
+                Util.TryToCreateGhost(targetBody, ownerBody, 10);  
+                //CharacterMaster characterMaster = MasterCatalog.allAiMasters.FirstOrDefault((CharacterMaster master) => master.bodyPrefab == summonModel.body.gameObject);
+                //this.masterSummon = new MasterSummon();
+                //masterSummon.masterPrefab = characterMaster.gameObject;
+                //masterSummon.position = ownerBody.footPosition;
+                //CharacterDirection component = ownerBody.GetComponent<CharacterDirection>();
+                //masterSummon.rotation = (component ? Quaternion.Euler(0f, component.yaw, 0f) : ownerBody.transform.rotation);
+                //masterSummon.summonerBodyObject = (ownerBody ? ownerBody.gameObject : null);
+
+                //CharacterMaster characterMaster2 = masterSummon.Perform();
 
             }
 
