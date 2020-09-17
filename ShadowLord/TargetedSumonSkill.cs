@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using R2API.Utils;
+using Mono.Cecil;
 
 namespace ShadowLord.MyEntityStates
 {
@@ -41,12 +43,19 @@ namespace ShadowLord.MyEntityStates
                 IL.RoR2.Util.TryToCreateGhost += (il) =>
                 {
                     ILCursor c = new ILCursor(il);
+                    ILCursor c2 = new ILCursor(il);
+                    FieldReference locField = null;
                     c.GotoNext(
                         x => x.MatchLdloc(0),
-                        x => x.MatchLdfld("RoR2.Util","targetBody"),
+                        //x => x.MatchLdfld("RoR2.Util/<>c__DisplayClass6_0", "targetBody"),
+                        x => x.MatchLdfld(out locField),
                         x => x.MatchCallOrCallvirt<CharacterBody>("get_footPosition"),
                         x => x.MatchStfld<MasterSummon>("position")
                         );
+                    c.Index += 1;
+                    c.RemoveRange(2);
+                    c.Emit(OpCodes.Stfld, locField);
+
                 };
                 Util.TryToCreateGhost(targetBody, ownerBody, 10);  
                 //CharacterMaster characterMaster = MasterCatalog.allAiMasters.FirstOrDefault((CharacterMaster master) => master.bodyPrefab == summonModel.body.gameObject);
